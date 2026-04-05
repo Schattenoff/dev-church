@@ -1,15 +1,24 @@
 <script>
+import siteConfig from '@/config/site.js'
 import Header from '@/modules/header/Header.vue'
 import Footer from '@/modules/footer/Footer.vue'
 import Menu from '@/modules/menu/Menu.vue'
+import Schedule from '@/modules/schedule/Schedule.vue'
+import Services from '@/modules/services/Services.vue'
+import News from '@/modules/news/News.vue'
 
 export default {
   name: 'App',
-  components: { Header, Footer, Menu },
+  components: { Header, Footer, Menu, Schedule, Services, News },
   data() {
     return {
       menuOpen: false,
     }
+  },
+  computed: {
+    config() {
+      return siteConfig
+    },
   },
   mounted() {
     const script = document.createElement('script')
@@ -35,17 +44,17 @@ export default {
       </section>
       <section id="services" class="section">
         <div class="container">
-          <h2 class="section__title">Служения</h2>
+          <Services />
         </div>
       </section>
-      <section id="schedule" class="section">
+      <section id="schedule" class="section section--alt">
         <div class="container">
-          <h2 class="section__title">Расписание</h2>
+          <Schedule />
         </div>
       </section>
       <section id="news" class="section">
         <div class="container">
-          <h2 class="section__title">Новости</h2>
+          <News />
         </div>
       </section>
       <section id="about" class="section">
@@ -56,6 +65,10 @@ export default {
       <section id="contacts" class="section">
         <div class="container">
           <h2 class="section__title">Контакты</h2>
+          <p class="contacts__info">
+            <a :href="`tel:${config.contacts.phone.replace(/\s|-/g, '')}`" class="contacts__link">{{ config.contacts.phone }}</a>
+            {{ config.contacts.address }}
+          </p>
           <div id="yandex-map" class="contacts__map"></div>
         </div>
       </section>

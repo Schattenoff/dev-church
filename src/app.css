@@ -1,76 +1,94 @@
 .layout {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 .layout__main {
-  flex: 1;
+    flex: 1;
 }
 
 .hero {
-  height: calc(100vh - var(--header-height));
-  background: url('/images/hero.png') center / cover no-repeat;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
+    height: calc(100vh - var(--header-height));
+    background: url('/images/hero.png') center / cover no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
 }
 
 .hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.45);
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.45);
 }
 
 .hero__content {
-  position: relative;
-  text-align: center;
-  color: #fff;
+    position: relative;
+    text-align: center;
+    color: #fff;
 }
 
 .hero__title {
-  font-size: 3.5rem;
-  font-weight: 700;
-  margin-bottom: 16px;
-  text-align: left;
-  text-wrap: balance;
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    text-align: left;
+    text-wrap: balance;
 }
 
 .hero__subtitle {
-  font-size: 1.375rem;
-  font-weight: 400;
-  opacity: 0.9;
+    font-size: 1.375rem;
+    font-weight: 400;
+    opacity: 0.9;
 }
 
 @media (max-width: 768px) {
-  .hero__title {
-    font-size: 2.25rem;
-  }
+    .hero__title {
+        font-size: 2.25rem;
+    }
 
-  .hero__subtitle {
-    font-size: 1.125rem;
-  }
+    .hero__subtitle {
+        font-size: 1.125rem;
+    }
 }
 
 .section {
-  min-height: 500px;
-  display: flex;
-  text-align: center;
-  padding: 80px 0;
+    min-height: 500px;
+    display: flex;
+    text-align: center;
+    padding: 80px 0;
 }
 
 .section__title {
-  font-size: 2rem;
-  font-weight: 700;
-  width: 100%;
+    font-size: 2rem;
+    font-weight: 700;
+    width: 100%;
+    margin-bottom: 32px;
+}
+
+
+.contacts__info {
+    margin: 32px 0;
+}
+
+.contacts__link {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color 0.2s;
+    margin: 0 16px 0 0;
+}
+
+.contacts__link:hover {
+    color: var(--color-primary-dark)
 }
 
 .contacts__map {
-  margin: 32px 0 0 0;
-  width: 100%;
-  max-width: 1160px;
-  border-radius: 20px;
-  overflow: hidden;
+    width: 100%;
+    max-width: 1160px;
+    border-radius: 20px;
+    overflow: hidden;
 }
+
+

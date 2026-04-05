@@ -1,12 +1,7 @@
 <script>
 export default {
   name: 'Nav',
-  props: {
-    items: {
-      type: Array,
-      required: true,
-    },
-  },
+  props: ['items'],
 }
 </script>
 

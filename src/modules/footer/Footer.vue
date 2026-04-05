@@ -1,10 +1,11 @@
 <script>
 import siteConfig from '@/config/site.js'
 import Logo from '@/modules/logo/Logo.vue'
+import Icon from '@/modules/ui/icon/Icon.vue'
 
 export default {
   name: 'Footer',
-  components: { Logo },
+  components: { Logo, Icon },
   computed: {
     config() {
       return siteConfig
@@ -32,7 +33,7 @@ export default {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {{ social.label }}
+            <Icon :name="social.icon" :size="22" />
           </a>
         </div>
       </div>

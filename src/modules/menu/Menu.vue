@@ -5,12 +5,7 @@ import Button from '@/modules/ui/button/Button.vue'
 export default {
   name: 'Menu',
   components: { Button },
-  props: {
-    open: {
-      type: Boolean,
-      default: false,
-    },
-  },
+  props: ['open'],
   emits: ['update:open'],
   computed: {
     config() {

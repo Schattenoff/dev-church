@@ -40,7 +40,9 @@
 }
 
 .footer__social-link {
-  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--color-footer-text);
   transition: color 0.2s;
 }

@@ -2,24 +2,26 @@ export default {
   name: 'Добрая весть',
   tagline: 'Место встречи с Богом',
 
-  colors: {
-    primary: '#2AABCB',
-    primaryDark: '#228FA8',
-    text: '#1A1A1A',
-    textSecondary: '#555555',
-    background: '#FFFFFF',
-    backgroundAlt: '#F5F7FA',
-    footerBg: '#1A1A1A',
-    footerText: '#CCCCCC',
-  },
-
   contacts: {
     phone: '+375 44 461-68-62',
     address: 'Витебск, ул. Чайковского, 6',
   },
 
   socials: [
-    // { icon: 'youtube', url: 'https://youtube.com/', label: 'YouTube' },
+    { icon: 'instagram', url: 'https://instagram.com/', label: 'Instagram' },
+  ],
+
+  schedule: [
+    { day: 'понедельник', events: [{ time: '19:00', title: 'Молодежка' }] },
+    { day: 'вторник', events: [{ time: '19:00', title: 'Разбор Библии' }] },
+    { day: 'среда', events: [] },
+    { day: 'четверг', events: [{ time: '19:00', title: 'Молитва' }] },
+    { day: 'пятница', events: [{ time: '19:00', title: 'Молодежная домашка' }] },
+    { day: 'суббота', events: [] },
+    { day: 'воскресенье', events: [
+      { time: '10:00', title: 'Утреннее служение' },
+      { time: '18:00', title: 'Вечернее служение' },
+    ] },
   ],
 
   navigation: [
