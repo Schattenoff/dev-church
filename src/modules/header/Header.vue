@@ -61,4 +61,4 @@ export default {
     </header>
 </template>
 
-<style src="./header.css"></style>
+<style src="./header.css" ></style>
