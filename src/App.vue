@@ -1,21 +1,11 @@
 <script>
-import Home from '@/pages/Home.vue'
-import Stub from '@/modules/stub/Stub.vue'
-
 export default {
-  name: 'App',
-  components: { Home, Stub },
-  data() {
-    return {
-      isDev: import.meta.env.DEV,
-    }
-  },
+    name: 'App',
 }
 </script>
 
 <template>
-  <Stub v-if="!isDev" />
-  <Home v-else />
+    <router-view />
 </template>
 
 <style src="./app.css"></style>
