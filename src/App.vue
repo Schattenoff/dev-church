@@ -1,6 +1,11 @@
 <script>
+import { contentStore } from '@/composables/useContent.js'
+
 export default {
     name: 'App',
+    mounted() {
+        contentStore.loadAll()
+    },
 }
 </script>
 

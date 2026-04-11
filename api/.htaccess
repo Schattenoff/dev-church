@@ -1,0 +1,15 @@
+RewriteEngine On
+RewriteBase /api/
+
+# Отдаём существующие файлы (например, /api/uploads/xxx.jpg) напрямую
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Всё остальное — в роутер
+RewriteRule ^ index.php [QSA,L]
+
+# Запрещаем выполнение PHP в папке uploads
+<Directory "uploads">
+    php_flag engine off
+</Directory>

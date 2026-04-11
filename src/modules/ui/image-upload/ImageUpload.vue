@@ -1,15 +1,17 @@
 <script>
-const MAX_BYTES = 1024 * 1024 // 1MB — base64 в localStorage раздувается, держим компактно
+import { api } from '@/config/api.js'
+
+const MAX_BYTES = 5 * 1024 * 1024 // 5MB — синхронизировано с api/config.example.php
 
 export default {
     name: 'ImageUpload',
     props: ['label', 'modelValue'],
     emits: ['update:modelValue'],
     data() {
-        return { error: '' }
+        return { error: '', uploading: false }
     },
     methods: {
-        onFile(e) {
+        async onFile(e) {
             this.error = ''
             const file = e.target.files && e.target.files[0]
             if (!file) return
@@ -18,14 +20,20 @@ export default {
                 return
             }
             if (file.size > MAX_BYTES) {
-                this.error = 'Файл больше 1 МБ — выберите меньше'
+                this.error = 'Файл больше 5 МБ — выберите меньше'
                 e.target.value = ''
                 return
             }
-            const reader = new FileReader()
-            reader.onload = () => this.$emit('update:modelValue', reader.result)
-            reader.onerror = () => (this.error = 'Не удалось прочитать файл')
-            reader.readAsDataURL(file)
+            this.uploading = true
+            try {
+                const res = await api.upload('/upload', file)
+                this.$emit('update:modelValue', res.url)
+            } catch (err) {
+                this.error = err.message || 'Не удалось загрузить файл'
+            } finally {
+                this.uploading = false
+                if (this.$refs.input) this.$refs.input.value = ''
+            }
         },
         clear() {
             this.$emit('update:modelValue', '')
@@ -43,8 +51,9 @@ export default {
             <button type="button" class="image-upload__remove" @click="clear">Удалить фото</button>
         </div>
         <label v-else class="image-upload__dropzone">
-            <input ref="input" type="file" accept="image/*" @change="onFile" />
-            <span>Выбрать фото (до 1 МБ)</span>
+            <input ref="input" type="file" accept="image/*" :disabled="uploading" @change="onFile" />
+            <span v-if="uploading">Загрузка…</span>
+            <span v-else>Выбрать фото (до 5 МБ)</span>
         </label>
         <p v-if="error" class="image-upload__error">{{ error }}</p>
     </div>
