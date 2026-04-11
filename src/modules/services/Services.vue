@@ -1,12 +1,31 @@
 <script>
-import { contentStore } from '@/composables/useContent.js'
+import { api } from '@/config/fetch.js'
 import CardGrid from '@/modules/ui/card-grid/CardGrid.vue'
 
 export default {
     name: 'Services',
     components: { CardGrid },
-    computed: {
-        items() { return contentStore.ministries },
+    data() {
+        return {
+            items: [],
+            isReady: false,
+        }
+    },
+    mounted() {
+        this.getData()
+    },
+    methods: {
+        getData() {
+            this.items.length > 0 && (this.items.length = 0)
+            api.fetch('/ministries/get', null, (res) => {
+                if (res.error) {
+                    api.growl(res.message, 'danger')
+                    return
+                }
+                this.items = res.ministries
+                this.isReady = true
+            })
+        },
     },
 }
 </script>

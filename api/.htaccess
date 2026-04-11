@@ -8,8 +8,3 @@ RewriteRule ^ - [L]
 
 # Всё остальное — в роутер
 RewriteRule ^ index.php [QSA,L]
-
-# Запрещаем выполнение PHP в папке uploads
-<Directory "uploads">
-    php_flag engine off
-</Directory>

@@ -4,51 +4,55 @@ declare(strict_types=1);
 require __DIR__ . '/db.php';
 require __DIR__ . '/helpers.php';
 
-// Простейший роутер: вырезаем /api/ и раскладываем на сегменты.
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+// Пинг для ручной проверки из браузера
+if ($method === 'GET') {
+    json_ok(['service' => 'dev-church api']);
+}
+
+if ($method !== 'POST') {
+    json_error('Only POST is allowed');
+}
+
 $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
 $path = preg_replace('#^/api/?#', '', $uri);
 $path = trim((string) $path, '/');
 $segments = $path === '' ? [] : explode('/', $path);
 
-$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $resource = $segments[0] ?? '';
-$id = $segments[1] ?? null;
+$action = $segments[1] ?? '';
 
 try {
+    if ($resource === 'upload') {
+        require __DIR__ . '/upload.php';
+        handle_upload();
+        exit;
+    }
+
+    $input = read_input();
+    $data = isset($input['data']) && is_array($input['data']) ? $input['data'] : [];
+
     switch ($resource) {
-        case '':
-            json_out(['ok' => true, 'service' => 'dev-church api']);
-            break;
-
-        case 'content':
-            require __DIR__ . '/content.php';
-            handle_content($method);
-            break;
-
         case 'news':
             require __DIR__ . '/news.php';
-            handle_news($method, $id);
+            handle_news($action, $data);
             break;
 
         case 'ministries':
             require __DIR__ . '/ministries.php';
-            handle_ministries($method, $id);
+            handle_ministries($action, $data);
             break;
 
         case 'schedule':
             require __DIR__ . '/schedule.php';
-            handle_schedule($method, $id);
-            break;
-
-        case 'upload':
-            require __DIR__ . '/upload.php';
-            handle_upload($method);
+            handle_schedule($action, $data);
             break;
 
         default:
-            json_error('Not found', 404);
+            json_error('Неизвестный ресурс');
     }
 } catch (Throwable $e) {
     error_log('[api] ' . $e->getMessage());
-    json_error('Internal error', 500);
+    json_error('Ошибка сервера');
 }

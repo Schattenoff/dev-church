@@ -1,13 +1,33 @@
 <script>
-import { contentStore } from '@/composables/useContent.js'
+import { api } from '@/config/fetch.js'
 
 export default {
     name: 'AdminDashboard',
-    computed: {
-        newsCount() { return contentStore.news.length },
-        ministriesCount() { return contentStore.ministries.length },
-        eventsCount() {
-            return contentStore.schedule.reduce((sum, c) => sum + c.events.length, 0)
+    data() {
+        return {
+            newsCount: 0,
+            ministriesCount: 0,
+            eventsCount: 0,
+            isReady: false,
+        }
+    },
+    mounted() {
+        this.getData()
+    },
+    methods: {
+        getData() {
+            api.fetch('/news/get', null, (res) => {
+                if (!res.error) this.newsCount = res.news.length
+            })
+            api.fetch('/ministries/get', null, (res) => {
+                if (!res.error) this.ministriesCount = res.ministries.length
+            })
+            api.fetch('/schedule/get', null, (res) => {
+                if (!res.error) {
+                    this.eventsCount = res.schedule.reduce((sum, c) => sum + c.events.length, 0)
+                    this.isReady = true
+                }
+            })
         },
     },
 }

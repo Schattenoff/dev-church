@@ -1,7 +1,7 @@
 <script>
-import { api } from '@/config/api.js'
+import { api } from '@/config/fetch.js'
 
-const MAX_BYTES = 5 * 1024 * 1024 // 5MB — синхронизировано с api/config.example.php
+const MAX_BYTES = 5 * 1024 * 1024
 
 export default {
     name: 'ImageUpload',
@@ -11,7 +11,7 @@ export default {
         return { error: '', uploading: false }
     },
     methods: {
-        async onFile(e) {
+        onFile(e) {
             this.error = ''
             const file = e.target.files && e.target.files[0]
             if (!file) return
@@ -25,15 +25,16 @@ export default {
                 return
             }
             this.uploading = true
-            try {
-                const res = await api.upload('/upload', file)
-                this.$emit('update:modelValue', res.url)
-            } catch (err) {
-                this.error = err.message || 'Не удалось загрузить файл'
-            } finally {
+            api.upload('/upload', file, (res) => {
                 this.uploading = false
                 if (this.$refs.input) this.$refs.input.value = ''
-            }
+                if (res.error) {
+                    this.error = res.message
+                    api.growl(res.message, 'danger')
+                    return
+                }
+                this.$emit('update:modelValue', res.url)
+            })
         },
         clear() {
             this.$emit('update:modelValue', '')

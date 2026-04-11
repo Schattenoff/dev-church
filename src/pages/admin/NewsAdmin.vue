@@ -1,5 +1,5 @@
 <script>
-import { contentStore } from '@/composables/useContent.js'
+import { api } from '@/config/fetch.js'
 import Input from '@/modules/ui/input/Input.vue'
 import Textarea from '@/modules/ui/textarea/Textarea.vue'
 import ImageUpload from '@/modules/ui/image-upload/ImageUpload.vue'
@@ -15,15 +15,28 @@ export default {
     components: { Input, Textarea, ImageUpload, Button, Modal },
     data() {
         return {
+            news: [],
+            isReady: false,
             editingId: null,
             form: empty(),
             showForm: false,
         }
     },
-    computed: {
-        news() { return contentStore.news },
+    mounted() {
+        this.getData()
     },
     methods: {
+        getData() {
+            this.news.length > 0 && (this.news.length = 0)
+            api.fetch('/news/get', null, (res) => {
+                if (res.error) {
+                    api.growl(res.message, 'danger')
+                    return
+                }
+                this.news = res.news
+                this.isReady = true
+            })
+        },
         startCreate() {
             this.editingId = null
             this.form = empty()
@@ -31,7 +44,12 @@ export default {
         },
         startEdit(item) {
             this.editingId = item.id
-            this.form = { title: item.title, description: item.description, date: item.date, image: item.image }
+            this.form = {
+                title: item.title,
+                description: item.description,
+                date: item.date,
+                image: item.image,
+            }
             this.showForm = true
         },
         cancel() {
@@ -39,19 +57,39 @@ export default {
             this.editingId = null
             this.form = empty()
         },
-        save() {
+        onSave() {
             if (!this.form.title.trim()) return
-            if (this.editingId) {
-                contentStore.updateNews(this.editingId, { ...this.form })
-            } else {
-                contentStore.addNews({ ...this.form })
+
+            const payload = {
+                data: {
+                    title: this.form.title,
+                    description: this.form.description,
+                    date: this.form.date,
+                    image: this.form.image,
+                },
             }
-            this.cancel()
+            if (this.editingId) payload.data.id = this.editingId
+
+            api.fetch('/news/save', payload, (res) => {
+                if (res.error) {
+                    api.growl(res.message, 'danger')
+                    return
+                }
+                api.growl('Сохранено', 'success')
+                this.cancel()
+                this.getData()
+            })
         },
-        confirmRemove(item) {
-            if (window.confirm(`Удалить новость «${item.title}»?`)) {
-                contentStore.removeNews(item.id)
-            }
+        onDelete(item) {
+            if (!window.confirm(`Удалить новость «${item.title}»?`)) return
+            api.fetch('/news/delete', { data: { id: item.id } }, (res) => {
+                if (res.error) {
+                    api.growl(res.message, 'danger')
+                    return
+                }
+                api.growl('Удалено', 'success')
+                this.getData()
+            })
         },
     },
 }
@@ -69,7 +107,7 @@ export default {
             :title="editingId ? 'Редактировать новость' : 'Новая новость'"
             @close="cancel"
         >
-            <form class="admin__form" @submit.prevent="save">
+            <form class="admin__form" @submit.prevent="onSave">
                 <Input label="Заголовок" v-model="form.title" placeholder="Название новости" />
                 <Input label="Дата" v-model="form.date" placeholder="Например: 24 декабря 2026" />
                 <Textarea label="Описание" v-model="form.description" placeholder="Короткое описание" />
@@ -94,11 +132,11 @@ export default {
                 </div>
                 <div class="adminItem__actions">
                     <button class="adminItem__btn" @click="startEdit(item)">Редактировать</button>
-                    <button class="adminItem__btn adminItem__btn--danger" @click="confirmRemove(item)">Удалить</button>
+                    <button class="adminItem__btn adminItem__btn--danger" @click="onDelete(item)">Удалить</button>
                 </div>
             </article>
         </div>
-        <p v-else class="admin__hint">Пока нет новостей.</p>
+        <p v-else-if="isReady" class="admin__hint">Пока нет новостей.</p>
     </div>
 </template>
 

@@ -12,42 +12,35 @@ function ministry_row(array $data, string $id): array {
     ];
 }
 
-function fetch_ministries(): array {
-    $rows = db()->query('SELECT id, title, description, schedule, leader, image FROM ministries ORDER BY sort_order ASC, created_at ASC')->fetchAll();
-    return $rows ?: [];
-}
-
-function handle_ministries(string $method, ?string $id): void {
-    if ($method === 'GET') {
-        json_out(fetch_ministries());
+function handle_ministries(string $action, array $data): void {
+    if ($action === 'get') {
+        $rows = db()->query('SELECT id, title, description, schedule, leader, image FROM ministries ORDER BY sort_order ASC, created_at ASC')->fetchAll() ?: [];
+        json_ok(['ministries' => $rows]);
     }
 
-    if ($method === 'POST') {
-        $data = read_json_body();
-        $row = ministry_row($data, new_id());
-        $stmt = db()->prepare('INSERT INTO ministries (id, title, description, schedule, leader, image, sort_order) VALUES (:id, :title, :description, :schedule, :leader, :image, 0)');
-        $stmt->execute($row);
-        json_out($row, 201);
-    }
+    if ($action === 'save') {
+        $id = isset($data['id']) && $data['id'] !== '' ? (string) $data['id'] : null;
 
-    if ($method === 'PUT' && $id !== null) {
-        $data = read_json_body();
+        if ($id === null) {
+            $row = ministry_row($data, new_id());
+            $stmt = db()->prepare('INSERT INTO ministries (id, title, description, schedule, leader, image, sort_order) VALUES (:id, :title, :description, :schedule, :leader, :image, 0)');
+            $stmt->execute($row);
+            json_ok(['ministry' => $row]);
+        }
+
         $row = ministry_row($data, $id);
         $stmt = db()->prepare('UPDATE ministries SET title=:title, description=:description, schedule=:schedule, leader=:leader, image=:image WHERE id=:id');
         $stmt->execute($row);
-        if ($stmt->rowCount() === 0) {
-            $check = db()->prepare('SELECT id FROM ministries WHERE id=:id');
-            $check->execute(['id' => $id]);
-            if (!$check->fetch()) json_error('Not found', 404);
-        }
-        json_out($row);
+        json_ok(['ministry' => $row]);
     }
 
-    if ($method === 'DELETE' && $id !== null) {
+    if ($action === 'delete') {
+        $id = isset($data['id']) ? (string) $data['id'] : '';
+        if ($id === '') json_error('id обязателен');
         $stmt = db()->prepare('DELETE FROM ministries WHERE id=:id');
         $stmt->execute(['id' => $id]);
-        json_out(['ok' => true]);
+        json_ok();
     }
 
-    json_error('Method not allowed', 405);
+    json_error('Неизвестное действие');
 }

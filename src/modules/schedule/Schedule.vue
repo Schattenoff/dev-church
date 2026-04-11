@@ -1,11 +1,27 @@
 <script>
-import { contentStore } from '@/composables/useContent.js'
+import { api } from '@/config/fetch.js'
 
 export default {
     name: 'Schedule',
-    computed: {
-        schedule() {
-            return contentStore.schedule
+    data() {
+        return {
+            schedule: [],
+            isReady: false,
+        }
+    },
+    mounted() {
+        this.getData()
+    },
+    methods: {
+        getData() {
+            api.fetch('/schedule/get', null, (res) => {
+                if (res.error) {
+                    api.growl(res.message, 'danger')
+                    return
+                }
+                this.schedule = res.schedule
+                this.isReady = true
+            })
         },
     },
 }

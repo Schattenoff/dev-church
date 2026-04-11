@@ -1,5 +1,5 @@
 <script>
-import { contentStore } from '@/composables/useContent.js'
+import { api } from '@/config/fetch.js'
 import Input from '@/modules/ui/input/Input.vue'
 import Textarea from '@/modules/ui/textarea/Textarea.vue'
 import ImageUpload from '@/modules/ui/image-upload/ImageUpload.vue'
@@ -15,15 +15,28 @@ export default {
     components: { Input, Textarea, ImageUpload, Button, Modal },
     data() {
         return {
+            ministries: [],
+            isReady: false,
             editingId: null,
             form: empty(),
             showForm: false,
         }
     },
-    computed: {
-        ministries() { return contentStore.ministries },
+    mounted() {
+        this.getData()
     },
     methods: {
+        getData() {
+            this.ministries.length > 0 && (this.ministries.length = 0)
+            api.fetch('/ministries/get', null, (res) => {
+                if (res.error) {
+                    api.growl(res.message, 'danger')
+                    return
+                }
+                this.ministries = res.ministries
+                this.isReady = true
+            })
+        },
         startCreate() {
             this.editingId = null
             this.form = empty()
@@ -45,19 +58,40 @@ export default {
             this.editingId = null
             this.form = empty()
         },
-        save() {
+        onSave() {
             if (!this.form.title.trim()) return
-            if (this.editingId) {
-                contentStore.updateMinistry(this.editingId, { ...this.form })
-            } else {
-                contentStore.addMinistry({ ...this.form })
+
+            const payload = {
+                data: {
+                    title: this.form.title,
+                    description: this.form.description,
+                    schedule: this.form.schedule,
+                    leader: this.form.leader,
+                    image: this.form.image,
+                },
             }
-            this.cancel()
+            if (this.editingId) payload.data.id = this.editingId
+
+            api.fetch('/ministries/save', payload, (res) => {
+                if (res.error) {
+                    api.growl(res.message, 'danger')
+                    return
+                }
+                api.growl('Сохранено', 'success')
+                this.cancel()
+                this.getData()
+            })
         },
-        confirmRemove(item) {
-            if (window.confirm(`Удалить служение «${item.title}»?`)) {
-                contentStore.removeMinistry(item.id)
-            }
+        onDelete(item) {
+            if (!window.confirm(`Удалить служение «${item.title}»?`)) return
+            api.fetch('/ministries/delete', { data: { id: item.id } }, (res) => {
+                if (res.error) {
+                    api.growl(res.message, 'danger')
+                    return
+                }
+                api.growl('Удалено', 'success')
+                this.getData()
+            })
         },
     },
 }
@@ -75,7 +109,7 @@ export default {
             :title="editingId ? 'Редактировать служение' : 'Новое служение'"
             @close="cancel"
         >
-            <form class="admin__form" @submit.prevent="save">
+            <form class="admin__form" @submit.prevent="onSave">
                 <Input label="Название" v-model="form.title" placeholder="Например: Молодёжное служение" />
                 <Textarea label="Описание" v-model="form.description" placeholder="О чём это служение" />
                 <Input label="Расписание" v-model="form.schedule" placeholder="Например: пятница, 19:00" />
@@ -102,11 +136,11 @@ export default {
                 </div>
                 <div class="adminItem__actions">
                     <button class="adminItem__btn" @click="startEdit(item)">Редактировать</button>
-                    <button class="adminItem__btn adminItem__btn--danger" @click="confirmRemove(item)">Удалить</button>
+                    <button class="adminItem__btn adminItem__btn--danger" @click="onDelete(item)">Удалить</button>
                 </div>
             </article>
         </div>
-        <p v-else class="admin__hint">Пока нет служений.</p>
+        <p v-else-if="isReady" class="admin__hint">Пока нет служений.</p>
     </div>
 </template>
 

@@ -1,0 +1,24 @@
+# SPA fallback для Vue Router (history mode)
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Не трогаем API — пусть его обрабатывает api/.htaccess
+    RewriteRule ^api(/|$) - [L]
+
+    # Существующие файлы и папки отдаём как есть (js, css, img, favicon, ...)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Всё остальное (/, /admin, /admin/news, ...) → index.html,
+    # дальше Vue Router разруливает на клиенте
+    RewriteRule ^ index.html [L]
+</IfModule>
+
+# Немного кеша для статики (не обязательно, но полезно)
+<IfModule mod_mime.c>
+    AddType image/svg+xml .svg
+    AddType font/woff2 .woff2
+</IfModule>

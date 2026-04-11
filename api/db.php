@@ -23,6 +23,7 @@ function db(): PDO {
             PDO::ATTR_EMULATE_PREPARES   => false,
         ]);
     } catch (PDOException $e) {
+        error_log('[api] DB connection failed: ' . $e->getMessage());
         http_response_code(500);
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode(['error' => 'DB connection failed']);

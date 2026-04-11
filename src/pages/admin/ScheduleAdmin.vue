@@ -1,34 +1,58 @@
 <script>
-import { contentStore } from '@/composables/useContent.js'
+import { api } from '@/config/fetch.js'
 import Input from '@/modules/ui/input/Input.vue'
 import Button from '@/modules/ui/button/Button.vue'
 import Modal from '@/modules/ui/modal/Modal.vue'
 
 function empty() {
-    return { time: '', title: '' }
+    return
 }
 
 export default {
     name: 'ScheduleAdmin',
+
     components: { Input, Button, Modal },
+
     data() {
         return {
+            schedule: [],
+            isReady: false,
             showForm: false,
             editingDay: null,
             editingId: null,
-            form: empty(),
+            form: {
+                time: '',
+                title: ''
+            },
         }
     },
-    computed: {
-        schedule() {
-            return contentStore.schedule
-        },
+
+    mounted() {
+        this.getData()
     },
+
     methods: {
+        onResetForm() {
+            return {
+                time: '',
+                title: ''
+            }
+        },
+
+        getData() {
+            api.fetch('/schedule/get', null, (res) => {
+                if (res.error) {
+                    api.growl(res.message, 'danger')
+                    return
+                }
+                this.schedule = res.schedule
+                this.isReady = true
+            })
+        },
         startCreate(day) {
             this.editingDay = day
             this.editingId = null
-            this.form = empty()
+            this.form = this.onResetForm()
             this.showForm = true
         },
         startEdit(day, event) {
@@ -41,21 +65,43 @@ export default {
             this.showForm = false
             this.editingDay = null
             this.editingId = null
-            this.form = empty()
+            this.form = this.onResetForm()
         },
-        save() {
+        onSave() {
             if (!this.form.title.trim() || !this.form.time.trim()) return
+
+            const payload = {
+                data: {
+                    time: this.form.time,
+                    title: this.form.title,
+                },
+            }
             if (this.editingId) {
-                contentStore.updateEvent(this.editingDay, this.editingId, { ...this.form })
+                payload.data.id = this.editingId
             } else {
-                contentStore.addEvent(this.editingDay, { ...this.form })
+                payload.data.day = this.editingDay
             }
-            this.cancel()
+
+            api.fetch('/schedule/save', payload, (res) => {
+                if (res.error) {
+                    api.growl(res.message, 'danger')
+                    return
+                }
+                api.growl('Сохранено', 'success')
+                this.cancel()
+                this.getData()
+            })
         },
-        confirmRemove(day, event) {
-            if (window.confirm(`Удалить «${event.title}»?`)) {
-                contentStore.removeEvent(day, event.id)
-            }
+        onDelete(day, event) {
+            if (!window.confirm(`Удалить «${event.title}»?`)) return
+            api.fetch('/schedule/delete', { data: { id: event.id } }, (res) => {
+                if (res.error) {
+                    api.growl(res.message, 'danger')
+                    return
+                }
+                api.growl('Удалено', 'success')
+                this.getData()
+            })
         },
     },
 }
@@ -86,7 +132,7 @@ export default {
                         </div>
                         <div class="scheduleAdmin__eventActions">
                             <button class="adminItem__btn" @click="startEdit(col.day, event)">Редактировать</button>
-                            <button class="adminItem__btn adminItem__btn--danger" @click="confirmRemove(col.day, event)">Удалить</button>
+                            <button class="adminItem__btn adminItem__btn--danger" @click="onDelete(col.day, event)">Удалить</button>
                         </div>
                     </li>
                 </ul>
@@ -99,7 +145,7 @@ export default {
             :title="editingId ? 'Редактировать событие' : `Новое событие — ${editingDay}`"
             @close="cancel"
         >
-            <form class="admin__form" @submit.prevent="save">
+            <form class="admin__form" @submit.prevent="onSave">
                 <Input label="Время" v-model="form.time" placeholder="Например: 19:00" />
                 <Input label="Название" v-model="form.title" placeholder="Например: Молитва" />
                 <div class="admin__formActions">
