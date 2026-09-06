@@ -15,7 +15,10 @@ export default {
 </script>
 
 <template>
-    <a v-if="href" :href="href" class="btn" :class="`btn--${variant}`">
+    <router-link v-if="href && href.startsWith('/')" :to="href" class="btn" :class="`btn--${variant}`">
+        {{ label }}
+    </router-link>
+    <a v-else-if="href" :href="href" class="btn" :class="`btn--${variant}`">
         {{ label }}
     </a>
     <button v-else class="btn" :class="`btn--${variant}`" @click="onClick">

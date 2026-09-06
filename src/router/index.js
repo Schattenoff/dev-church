@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { authStore } from '@/composables/useAuth.js'
 
 import Home from '@/pages/Home.vue'
+import About from '@/pages/About.vue'
 import Stub from '@/modules/stub/Stub.vue'
 import Login from '@/pages/admin/Login.vue'
 import AdminLayout from '@/pages/admin/AdminLayout.vue'
@@ -11,12 +12,19 @@ import MinistriesAdmin from '@/pages/admin/MinistriesAdmin.vue'
 import ScheduleAdmin from '@/pages/admin/ScheduleAdmin.vue'
 
 const isDev = import.meta.env.DEV
+// Полная версия сайта: в dev всегда, в проде только с ?preview в URL
+const isPreview = isDev || new URLSearchParams(window.location.search).has('preview')
 
 const routes = [
     {
         path: '/',
         name: 'home',
-        component: isDev ? Home : Stub,
+        component: isPreview ? Home : Stub,
+    },
+    {
+        path: '/about',
+        name: 'about',
+        component: isPreview ? About : Stub,
     },
     {
         path: '/admin/login',
@@ -47,7 +55,11 @@ const router = createRouter({
     },
 })
 
-router.beforeEach((to) => {
+router.beforeEach((to, from) => {
+    // Тянем ?preview за собой при внутренних переходах
+    if (from.query.preview !== undefined && to.query.preview === undefined) {
+        return { path: to.path, hash: to.hash, query: { ...to.query, preview: from.query.preview } }
+    }
     if (to.meta.requiresAuth && !authStore.isAuthed) {
         return { name: 'admin-login', query: { redirect: to.fullPath } }
     }

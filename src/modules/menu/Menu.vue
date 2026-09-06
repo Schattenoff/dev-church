@@ -1,5 +1,6 @@
 <script>
 import siteConfig from '@/config/site.js'
+import { filterNavigation } from '@/composables/useSections.js'
 import Button from '@/modules/ui/button/Button.vue'
 
 export default {
@@ -10,6 +11,9 @@ export default {
     computed: {
         config() {
             return siteConfig
+        },
+        navItems() {
+            return filterNavigation(siteConfig.navigation)
         },
     },
     watch: {
@@ -44,15 +48,15 @@ export default {
             <div v-if="open" class="menu-overlay" @click="close">
                 <nav class="menu" @click.stop>
                     <button class="menu__close" @click="close">&#x2715;</button>
-                    <a
-                        v-for="item in config.navigation"
+                    <router-link
+                        v-for="item in navItems"
                         :key="item.href"
-                        :href="item.href"
+                        :to="item.href"
                         class="menu__link"
                         @click="close"
                     >
                         {{ item.label }}
-                    </a>
+                    </router-link>
                     <Button
                         v-if="config.cta"
                         :label="config.cta.label"

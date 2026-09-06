@@ -8,20 +8,7 @@ export default {
     },
 
     socials: [
-        { icon: 'instagram', url: 'https://instagram.com/', label: 'Instagram' },
-    ],
-
-    schedule: [
-        { day: 'понедельник', events: [{ time: '19:00', title: 'Молодежка' }] },
-        { day: 'вторник', events: [{ time: '19:00', title: 'Разбор Библии' }] },
-        { day: 'среда', events: [] },
-        { day: 'четверг', events: [{ time: '19:00', title: 'Молитва' }] },
-        { day: 'пятница', events: [{ time: '19:00', title: 'Молодежная домашка' }] },
-        { day: 'суббота', events: [] },
-        { day: 'воскресенье', events: [
-            { time: '10:00', title: 'Утреннее служение' },
-            { time: '18:00', title: 'Вечернее служение' },
-        ] },
+        { icon: 'instagram', url: 'https://www.instagram.com/vitebsk_dv/', label: 'Instagram' },
     ],
 
     navigation: [
@@ -31,9 +18,4 @@ export default {
         { label: 'О нас', href: '/#about' },
         { label: 'Контакты', href: '/#contacts' },
     ],
-
-    cta: {
-        label: 'Пожертвовать',
-        href: '/#donate',
-    },
 }

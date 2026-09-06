@@ -27,12 +27,6 @@
     color: #fff;
 }
 
-.footer__tagline {
-    margin-top: 8px;
-    font-size: 0.875rem;
-    opacity: 0.8;
-}
-
 .footer__socials {
     display: flex;
     gap: 12px;
@@ -72,12 +66,22 @@
 }
 
 .footer__contact-item {
+    display: block;
     font-size: 0.875rem;
     padding: 4px 0;
+    color: var(--color-footer-text);
+    text-decoration: none;
+}
+
+.footer__contact-item--link {
+    transition: color 0.2s;
+}
+
+.footer__contact-item--link:hover {
+    color: var(--color-primary);
 }
 
 .footer__bottom {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding: 20px 0;
     font-size: 0.8125rem;
     opacity: 0.6;

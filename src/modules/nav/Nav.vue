@@ -7,14 +7,14 @@ export default {
 
 <template>
     <nav class="nav">
-        <a
+        <router-link
             v-for="item in items"
             :key="item.href"
-            :href="item.href"
+            :to="item.href"
             class="nav__link"
         >
             {{ item.label }}
-        </a>
+        </router-link>
     </nav>
 </template>
 

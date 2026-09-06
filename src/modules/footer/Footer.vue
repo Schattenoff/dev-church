@@ -1,5 +1,6 @@
 <script>
 import siteConfig from '@/config/site.js'
+import { filterNavigation } from '@/composables/useSections.js'
 import Logo from '@/modules/logo/Logo.vue'
 import Icon from '@/modules/ui/icon/Icon.vue'
 
@@ -9,6 +10,9 @@ export default {
     computed: {
         config() {
             return siteConfig
+        },
+        navItems() {
+            return filterNavigation(siteConfig.navigation)
         },
         year() {
             return new Date().getFullYear()
@@ -22,7 +26,6 @@ export default {
         <div class="container footer__inner">
             <div class="footer__brand">
                 <Logo size="md" :show-name="true" class="footer__logo" />
-                <p v-if="config.tagline" class="footer__tagline">{{ config.tagline }}</p>
                 <div v-if="config.socials && config.socials.length" class="footer__socials">
                     <a
                         v-for="social in config.socials"
@@ -38,23 +41,27 @@ export default {
                 </div>
             </div>
 
-            <div v-if="config.navigation && config.navigation.length" class="footer__nav">
+            <div v-if="navItems.length" class="footer__nav">
                 <h4 class="footer__heading">Навигация</h4>
-                <a
-                    v-for="item in config.navigation"
+                <router-link
+                    v-for="item in navItems"
                     :key="item.href"
-                    :href="item.href"
+                    :to="item.href"
                     class="footer__link"
                 >
                     {{ item.label }}
-                </a>
+                </router-link>
             </div>
 
             <div v-if="config.contacts" class="footer__contacts">
                 <h4 class="footer__heading">Контакты</h4>
-                <p v-if="config.contacts.phone" class="footer__contact-item">
+                <a
+                    v-if="config.contacts.phone"
+                    :href="`tel:${config.contacts.phone.replace(/[^+\d]/g, '')}`"
+                    class="footer__contact-item footer__contact-item--link"
+                >
                     {{ config.contacts.phone }}
-                </p>
+                </a>
                 <p v-if="config.contacts.address" class="footer__contact-item">
                     {{ config.contacts.address }}
                 </p>

@@ -1,5 +1,6 @@
 <script>
 import siteConfig from '@/config/site.js'
+import { sectionsStore, filterNavigation } from '@/composables/useSections.js'
 import Logo from '@/modules/logo/Logo.vue'
 import Nav from '@/modules/nav/Nav.vue'
 import Button from '@/modules/ui/button/Button.vue'
@@ -24,9 +25,13 @@ export default {
         config() {
             return siteConfig
         },
+        navItems() {
+            return filterNavigation(siteConfig.navigation)
+        },
     },
 
     mounted() {
+        sectionsStore.load()
         window.addEventListener('scroll', this.handleScroll)
     },
 
@@ -46,7 +51,7 @@ export default {
     <header class="header" :class="{ 'header--scrolled': isScrolled }">
         <div class="container header__inner">
             <Logo size="sm" :showName="true"/>
-            <Nav :items="config.navigation" class="header__nav"/>
+            <Nav :items="navItems" class="header__nav"/>
             <Button
                 v-if="config.cta"
                 :label="config.cta.label"
